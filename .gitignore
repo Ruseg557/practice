@@ -1,0 +1,30 @@
+# Бинарные файлы Go
+bin/
+dist/
+*.exe
+*.so
+*.dll
+*.app
+
+# Автогенерируемые файлы Go
+go.sum
+
+# Файлы IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Секретные файлы
+.env
+*.env.local
+config.json
+secrets/
+
+# Кэш Fyne
+fyne-cross/
+.fyne/
+
+# Системные файлы
+.DS_Store
+Thumbs.dbп
