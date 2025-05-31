@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -37,6 +38,7 @@ func mergeSort(arr []float32) []float32 {
 func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Merge sort application")
+	clipboard := fyne.CurrentApp().Clipboard()
 
 	// Настройки Окна
 	myWindow.Resize(fyne.NewSize(800, 600))
@@ -50,6 +52,9 @@ func main() {
 	input.SetPlaceHolder("Введите значения через пробел")
 	errLabel := widget.NewLabel("Здесь будут сообщения об ошибках")
 	resLabel := widget.NewLabel("Здесь будет результат сортировки")
+	resLabel.Wrapping = fyne.TextWrapWord // Автоматический перенос по границе окна
+	resScroll := container.NewVScroll(resLabel)
+	resScroll.SetMinSize(fyne.NewSize(780, 300)) //  Размер области прокрутки
 
 	// Кнопка сортировки
 	sortButton := widget.NewButton("Отсортировать", func() {
@@ -73,28 +78,44 @@ func main() {
 			}
 		} // for
 
-		if flagErr { // Вывод сообщения об ошибках (кроме пустоты)
+		if !flagErr { // Вывод сообщения об ошибках (кроме пустоты)
 			errLabel.SetText("Недопустимые символы не обнаружены")
 		} else {
 			errLabel.SetText("Недопустимые символы. Программа их проигнорировала")
 		}
 
 		var resArr = mergeSort(numbers)
-
 		if resArr != nil { // Проверка на существование результата
-			resLabel.SetText(fmt.Sprint(resArr))
+			var builder strings.Builder
+			for _, num := range resArr {
+				builder.WriteString(fmt.Sprintf("%.2f  ", num))
+			}
+			resLabel.SetText(builder.String())
 		} else {
 			resLabel.SetText("Здесь будет результат сортировки")
 		}
 
 	}) // sortButton
 
+	insertButton := widget.NewButton("Вставить из буфера обмена", func() {
+		input.SetText(clipboard.Content())
+	}) // insertButton
+
+	copyButton := widget.NewButton("Скопировать результат в буфер обмена", func() {
+		inputText := input.Text
+		clipboard.SetContent(inputText)
+	}) //copyButton
+
+	// Интерфейс
 	myWindow.SetContent(container.NewVBox(
 		mainLabel,
 		input,
 		sortButton,
 		errLabel,
-		resLabel,
+		widget.NewLabel("Результат:"),
+		resScroll,
+		insertButton,
+		copyButton,
 	))
 
 	myWindow.ShowAndRun()
